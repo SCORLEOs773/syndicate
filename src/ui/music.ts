@@ -11,7 +11,7 @@ interface Track {
   padVol: number;
   /** chance per beat of a melody note */
   pluck: number;
-}
+} 
 
 const hz = (midi: number) => 440 * Math.pow(2, (midi - 69) / 12);
 
