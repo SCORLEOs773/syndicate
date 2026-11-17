@@ -1,0 +1,131 @@
+.menu {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 40px 20px;
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(201, 162, 39, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 50% 100%,
+      rgba(139, 26, 26, 0.18),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+.menu-fog {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+}
+
+.menu-header {
+  position: relative;
+  text-align: center;
+}
+
+.menu-tag {
+  letter-spacing: 0.5em;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.menu-title {
+  font-family: var(--font-title);
+  font-weight: 900;
+  font-size: clamp(3rem, 12vw, 6.5rem);
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  text-shadow:
+    0 0 30px rgba(201, 162, 39, 0.35),
+    0 4px 0 #000;
+}
+
+.menu-rule {
+  width: 120px;
+  height: 2px;
+  margin: 16px auto;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--blood-bright),
+    transparent
+  );
+}
+
+.menu-sub {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.menu-options {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.menu-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  padding: 18px 22px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--blood);
+  color: var(--text);
+  transition:
+    transform 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.menu-card:not(:disabled):hover {
+  transform: translateX(6px);
+  border-color: var(--gold);
+  box-shadow: 0 0 24px rgba(201, 162, 39, 0.15);
+}
+
+.menu-card:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.menu-card-title {
+  font-family: var(--font-title);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--gold-soft);
+}
+
+.menu-card-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.menu-card-soon {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--blood-bright);
+}

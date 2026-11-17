@@ -1,0 +1,39 @@
+:root {
+  --bg: #0b0b0d;
+  --panel: #141417;
+  --panel-border: #2a2a2f;
+  --gold: #c9a227;
+  --gold-soft: #e6c76a;
+  --blood: #8b1a1a;
+  --blood-bright: #c0392b;
+  --text: #e8e2d0;
+  --muted: #8a8573;
+
+  --font-title: "Playfair Display", Georgia, serif;
+  --font-type: "Special Elite", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-type);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
