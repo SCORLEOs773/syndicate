@@ -1,0 +1,135 @@
+.setup {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(201, 162, 39, 0.1),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+.setup-panel {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 32px 28px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-top: 3px solid var(--blood);
+}
+
+.setup-title {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  text-align: center;
+  color: var(--gold);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field-label b {
+  color: var(--gold-soft);
+}
+
+.field-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.field-input {
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 1.05rem;
+  color: var(--text);
+  background: #0e0e10;
+  border: 1px solid var(--panel-border);
+  outline: none;
+}
+
+.field-input:focus {
+  border-color: var(--gold);
+}
+
+input[type="range"] {
+  accent-color: var(--gold);
+  width: 100%;
+}
+
+.chips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  background: #0e0e10;
+  border: 1px solid var(--panel-border);
+}
+
+.chip-count {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--gold-soft);
+}
+
+.chip-mafia .chip-count {
+  color: var(--blood-bright);
+}
+
+.chip-name {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.toggle input {
+  accent-color: var(--gold);
+  width: 16px;
+  height: 16px;
+}
+
+.setup-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}

@@ -220,10 +220,16 @@ export function resolveVote(state: GameState): GameState {
       playerId: eliminated.id,
       role: next.settings.revealRoleOnDeath ? eliminated.role : null,
       tally,
+      votes: { ...next.votes },
     });
   } else {
     // No votes, or a tie: nobody is eliminated
-    next.log.push({ type: "vote_tie", day: next.day, tally });
+    next.log.push({
+      type: "vote_tie",
+      day: next.day,
+      tally,
+      votes: { ...next.votes },
+    });
   }
 
   next.votes = {};

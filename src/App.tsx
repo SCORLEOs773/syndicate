@@ -1,27 +1,36 @@
 import { useState } from "react";
-import MainMenu, { type Mode } from "./screens/MainMenu";
+import MainMenu from "./screens/MainMenu";
+import SetupScreen from "./screens/SetupScreen";
+import type { GameConfig } from "./screens/SetupScreen";
+import GameScreen from "./screens/GameScreen";
 
-type Screen = "menu" | Mode;
+type Screen = "menu" | "setup" | "game";
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("menu");
+  const [config, setConfig] = useState<GameConfig | null>(null);
 
-  if (screen === "menu") {
-    return <MainMenu onSelect={(mode) => setScreen(mode)} />;
+  if (screen === "setup") {
+    return (
+      <SetupScreen
+        onBack={() => setScreen("menu")}
+        onStart={(c) => {
+          setConfig(c);
+          setScreen("game");
+        }}
+      />
+    );
   }
 
-  // Placeholder until we build the real game screen
+  if (screen === "game" && config) {
+    return <GameScreen config={config} onExit={() => setScreen("menu")} />;
+  }
+
   return (
-    <div style={{ padding: 40, textAlign: "center" }}>
-      <h2 style={{ fontFamily: "var(--font-title)", color: "var(--gold)" }}>
-        The game starts here: {screen}
-      </h2>
-      <button
-        onClick={() => setScreen("menu")}
-        style={{ marginTop: 24, padding: "10px 20px" }}
-      >
-        Back to menu
-      </button>
-    </div>
+    <MainMenu
+      onSelect={(mode) => {
+        if (mode === "single") setScreen("setup");
+      }}
+    />
   );
 }

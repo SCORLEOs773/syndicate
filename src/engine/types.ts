@@ -49,8 +49,14 @@ export type GameEvent =
       playerId: string;
       role: Role | null;
       tally: Record<string, number>;
+      votes: Record<string, Vote>;
     }
-  | { type: "vote_tie"; day: number; tally: Record<string, number> }
+  | {
+      type: "vote_tie";
+      day: number;
+      tally: Record<string, number>;
+      votes: Record<string, Vote>;
+    }
   | { type: "game_over"; winner: Team };
 
 export interface GameState {
