@@ -1,0 +1,39 @@
+.name-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.name-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.name-num {
+  width: 1.2rem;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.name-field .field-input {
+  min-width: 0;
+  width: 100%;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+.field-error {
+  font-size: 0.85rem;
+  color: var(--blood-bright);
+}
+
+select.field-input {
+  appearance: auto;
+}
+
+.setup-actions .btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

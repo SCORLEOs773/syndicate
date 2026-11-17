@@ -1,0 +1,62 @@
+.splash {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  background:
+    radial-gradient(
+      ellipse at 50% 30%,
+      rgba(201, 162, 39, 0.14),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 50% 100%,
+      rgba(139, 26, 26, 0.22),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+.splash-title {
+  font-family: var(--font-title);
+  font-weight: 900;
+  font-size: clamp(3rem, 14vw, 7.5rem);
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  text-shadow:
+    0 0 40px rgba(201, 162, 39, 0.4),
+    0 4px 0 #000;
+  animation: flicker 7s infinite;
+}
+
+.splash-sub {
+  letter-spacing: 0.5em;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.splash-tap {
+  margin-top: 48px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  color: var(--gold-soft);
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+.splash-hint {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.25;
+  }
+}

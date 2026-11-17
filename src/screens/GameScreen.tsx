@@ -157,8 +157,6 @@ export default function GameScreen({ config, onExit }: Props) {
     return () => window.clearTimeout(t);
   }, [stage, shown, chat.length]);
 
-  useEffect(() => () => music.stop(), []);
-
   // ---------- transitions
 
   function pickTile(id: string) {
@@ -285,8 +283,19 @@ export default function GameScreen({ config, onExit }: Props) {
 
   const isNight = stage === "reveal" || stage === "night";
   useEffect(() => {
-    music.setMood(isNight ? "night" : "day");
-  }, [isNight]);
+    const won = game.winner === (me.role === "mafia" ? "mafia" : "village");
+    music.setMood(
+      stage === "gameover"
+        ? won
+          ? "victory"
+          : "defeat"
+        : isNight
+          ? "night"
+          : stage === "day"
+            ? "tense"
+            : "day",
+    );
+  }, [isNight, stage, game.winner, me.role]);
   const themeClass = isNight ? "game game-night" : "game game-day";
   const votingReady = shown >= chat.length;
 

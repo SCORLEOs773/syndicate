@@ -129,3 +129,55 @@
   letter-spacing: 0.2em;
   color: var(--blood-bright);
 }
+
+.menu-title {
+  animation: flicker 8s infinite;
+}
+
+.menu-quote {
+  min-height: 1.4em;
+  animation: quote-in 0.9s ease both;
+}
+
+@keyframes quote-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.howto {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.howto summary {
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--gold-soft);
+}
+
+.howto ul {
+  margin-top: 14px;
+  padding: 16px 18px 16px 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  line-height: 1.5;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+}
+
+.howto b {
+  color: var(--text);
+}

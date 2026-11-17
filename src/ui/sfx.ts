@@ -63,6 +63,14 @@ export const sfx = {
     [392, 330, 262, 196].forEach((f, i) =>
       tone(f, 0.8, { type: "triangle", vol: 0.12, delay: i * 0.2 }),
     ),
+  bell: () => {
+    tone(880, 1.6, { vol: 0.12 });
+    tone(1320, 1.2, { vol: 0.06, delay: 0.04 });
+  },
+  knock: () =>
+    [0, 0.16, 0.32].forEach((d) =>
+      tone(95, 0.12, { type: "square", vol: 0.1, delay: d, slideTo: 60 }),
+    ),
   isMuted: () => muted,
   setMuted: (m: boolean) => {
     muted = m;
