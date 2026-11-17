@@ -9,7 +9,7 @@ function getPlayer(state: GameState, id: string): Player {
   return p;
 }
 
-function weightedPick(
+export function weightedPick(
   ids: string[],
   weightOf: (id: string) => number,
   rng: Rng,
@@ -25,7 +25,7 @@ function weightedPick(
 }
 
 /** What this bot personally knows for certain. */
-function findings(state: GameState, bot: Player) {
+export function findings(state: GameState, bot: Player) {
   const mafia = new Set<string>();
   const innocent = new Set<string>();
 
@@ -45,7 +45,7 @@ function findings(state: GameState, bot: Player) {
  * Public reputation from past votes (needs revealed roles).
  * Voting out an innocent is suspicious (+1); voting out a mafia is trusted (-0.6).
  */
-function reputation(state: GameState): Record<string, number> {
+export function reputation(state: GameState): Record<string, number> {
   const rep: Record<string, number> = {};
   for (const e of state.log) {
     if (e.type !== "vote_elimination" || e.role === null) continue;
@@ -107,6 +107,7 @@ export function chooseVote(
   state: GameState,
   botId: string,
   rng: Rng = Math.random,
+  suspicion: Record<string, number> = {},
 ): Vote {
   const bot = getPlayer(state, botId);
   const legal = getLegalTargets(state, botId);
@@ -141,11 +142,11 @@ export function chooseVote(
     candidates,
     (id) => {
       const r = rep[id] ?? 0;
+      const heat = 0.7 * (suspicion[id] ?? 0); // what was said at the table
       if (bot.role === "mafia") {
-        // Blend in with the crowd, and target anyone who hunted mafia before.
-        return 1 + 1.5 * Math.max(0, -r) + 0.8 * (pile[id] ?? 0);
+        return 1 + 1.5 * Math.max(0, -r) + 0.8 * (pile[id] ?? 0) + heat;
       }
-      return 1 + r + 0.5 * (pile[id] ?? 0);
+      return 1 + r + 0.5 * (pile[id] ?? 0) + heat;
     },
     rng,
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   castVote,
   createGame,
@@ -10,7 +10,13 @@ import {
 import type { GameEvent, GameState, Role } from "../engine";
 import { pickBotNames } from "../ai/names";
 import { autoBotVotes, autoNightActions } from "../ai/runner";
+import {
+  generateDiscussion,
+  suspicionFrom,
+  type ChatLine,
+} from "../ai/discussion";
 import { narrate, ROLE_NAME } from "../ui/narration";
+import { sfx } from "../ui/sfx";
 import type { GameConfig } from "./SetupScreen";
 import "./GameScreen.css";
 
@@ -133,21 +139,45 @@ export default function GameScreen({ config, onExit }: Props) {
   const [game, setGame] = useState(() => deal(config));
   const [stage, setStage] = useState<Stage>("reveal");
   const [selected, setSelected] = useState<string | null>(null);
+  const [sleeping, setSleeping] = useState(false);
+  const [chat, setChat] = useState<ChatLine[]>([]);
+  const [shown, setShown] = useState(0);
+  const [accused, setAccused] = useState(false);
+  const [muted, setMuted] = useState(sfx.isMuted());
 
   const me = game.players.find((p) => p.id === HUMAN_ID)!;
   const nameOf = (id: string) =>
     game.players.find((p) => p.id === id)?.name ?? "?";
 
+  // Reveal discussion lines one at a time
+  useEffect(() => {
+    if (stage !== "day" || shown >= chat.length) return;
+    const t = window.setTimeout(() => setShown((s) => s + 1), 1200);
+    return () => window.clearTimeout(t);
+  }, [stage, shown, chat.length]);
+
   // ---------- transitions
+
+  function pickTile(id: string) {
+    sfx.click();
+    setSelected(id);
+  }
+
+  function toggleMute() {
+    sfx.setMuted(!muted);
+    setMuted(!muted);
+  }
 
   function startNight(g: GameState) {
     setGame(autoNightActions(g, humansOf(g)));
     setSelected(null);
     setStage("night");
+    sfx.night();
   }
 
   function confirmNightAction() {
     if (!selected) return;
+    sfx.click();
     let g = submitNightAction(game, HUMAN_ID, selected);
     g = autoNightActions(g, humansOf(g));
     setGame(g);
@@ -155,32 +185,80 @@ export default function GameScreen({ config, onExit }: Props) {
   }
 
   function wakeUp() {
-    setGame(resolveNight(game));
-    setStage("dawn");
+    if (sleeping) return;
+    setSleeping(true);
+    window.setTimeout(() => {
+      const g = resolveNight(game);
+      setGame(g);
+      setSleeping(false);
+      setStage("dawn");
+      sfx.dawn();
+      if (sinceLastNightFall(g.log).some((e) => e.type === "morning_death")) {
+        window.setTimeout(sfx.death, 700);
+      }
+    }, 1800);
+  }
+
+  function playEnd(g: GameState) {
+    const won = g.winner === (me.role === "mafia" ? "mafia" : "village");
+    if (won) sfx.win();
+    else sfx.lose();
   }
 
   function afterDawn() {
-    setStage(game.phase === "gameover" ? "gameover" : "day");
+    if (game.phase === "gameover") {
+      setStage("gameover");
+      playEnd(game);
+      return;
+    }
+    setChat(generateDiscussion(game, humansOf(game)));
+    setShown(0);
+    setAccused(false);
+    setSelected(null);
+    setStage("day");
+  }
+
+  function accuse() {
+    if (!selected || accused) return;
+    sfx.click();
+    const line: ChatLine = {
+      speakerId: HUMAN_ID,
+      kind: "accuse",
+      targetId: selected,
+      text: `I'm pointing at ${nameOf(selected)}. Think about it.`,
+      weight: 1.5,
+    };
+    setChat((c) => [...c, line]);
+    setShown((s) => s + 1);
+    setAccused(true);
   }
 
   function submitVote(target: string | null) {
+    sfx.click();
     let g = game;
     if (me.alive) g = castVote(g, HUMAN_ID, target);
-    g = autoBotVotes(g, humansOf(g));
+    g = autoBotVotes(g, humansOf(g), Math.random, suspicionFrom(chat));
     g = resolveVote(g);
     setGame(g);
     setSelected(null);
     setStage("result");
+    if (lastVote(g.log)?.type === "vote_elimination") sfx.death();
   }
 
   function afterResult() {
-    if (game.phase === "gameover") setStage("gameover");
-    else startNight(game);
+    if (game.phase === "gameover") {
+      setStage("gameover");
+      playEnd(game);
+    } else {
+      startNight(game);
+    }
   }
 
   function playAgain() {
     setGame(deal(config));
     setSelected(null);
+    setChat([]);
+    setShown(0);
     setStage("reveal");
   }
 
@@ -202,30 +280,44 @@ export default function GameScreen({ config, onExit }: Props) {
 
   const isNight = stage === "reveal" || stage === "night";
   const themeClass = isNight ? "game game-night" : "game game-day";
+  const votingReady = shown >= chat.length;
 
   // ---------- render
 
   return (
     <div className={themeClass}>
+      <div className={isNight ? "moon" : "sun"} />
+
       <header className="hud">
         <span className="hud-phase">
           {stage === "reveal"
             ? "The Deal"
             : `${isNight ? "Night" : "Day"} ${game.day}`}
         </span>
-        <span className={`hud-role ${me.role === "mafia" ? "hud-mafia" : ""}`}>
-          {ROLE_NAME[me.role]}
-          {!me.alive && " (dead)"}
-        </span>
+        <div className="hud-right">
+          <span
+            className={`hud-role ${me.role === "mafia" ? "hud-mafia" : ""}`}
+          >
+            {ROLE_NAME[me.role]}
+            {!me.alive && " (dead)"}
+          </span>
+          <button
+            className="mute"
+            onClick={toggleMute}
+            aria-label="Toggle sound"
+          >
+            {muted ? "🔇" : "🔊"}
+          </button>
+        </div>
       </header>
 
-      <main className="stage">
+      <main className="stage" key={stage}>
         {/* ------------------------------------------------ REVEAL */}
         {stage === "reveal" && (
           <>
             <p className="tag">YOUR ROLE</p>
             <div
-              className={`role-card ${me.role === "mafia" ? "role-mafia" : ""}`}
+              className={`role-card reveal ${me.role === "mafia" ? "role-mafia" : ""}`}
             >
               <h2>{ROLE_NAME[me.role]}</h2>
               <p>{ROLE_INFO[me.role]}</p>
@@ -262,7 +354,7 @@ export default function GameScreen({ config, onExit }: Props) {
                   game={game}
                   selectable={getLegalTargets(game, HUMAN_ID)}
                   selected={selected}
-                  onSelect={setSelected}
+                  onSelect={pickTile}
                 />
                 <button
                   className="btn"
@@ -291,8 +383,12 @@ export default function GameScreen({ config, onExit }: Props) {
                   <div className="notice">You watch from beyond the grave.</div>
                 )}
                 <PlayerGrid game={game} selected={null} />
-                <button className="btn" onClick={wakeUp}>
-                  {hasNightPower ? "Wait for dawn" : "Sleep until dawn"}
+                <button className="btn" disabled={sleeping} onClick={wakeUp}>
+                  {sleeping
+                    ? "The night passes..."
+                    : hasNightPower
+                      ? "Wait for dawn"
+                      : "Sleep until dawn"}
                 </button>
               </>
             )}
@@ -307,7 +403,13 @@ export default function GameScreen({ config, onExit }: Props) {
               {sinceLastNightFall(game.log)
                 .filter((e) => e.type !== "game_over")
                 .map((e, i) => (
-                  <p key={i}>{narrate(e, nameOf)}</p>
+                  <p
+                    key={i}
+                    className="fade-line"
+                    style={{ animationDelay: `${i * 0.8}s` }}
+                  >
+                    {narrate(e, nameOf)}
+                  </p>
                 ))}
             </div>
             <PlayerGrid game={game} selected={null} />
@@ -322,36 +424,77 @@ export default function GameScreen({ config, onExit }: Props) {
         {/* ------------------------------------------------ DAY */}
         {stage === "day" && (
           <>
-            <p className="narration">
-              Someone at this table is lying.{" "}
-              {me.alive ? "Who gets your vote?" : "You can only watch."}
-            </p>
-            <PlayerGrid
-              game={game}
-              selectable={me.alive ? getLegalTargets(game, HUMAN_ID) : []}
-              selected={selected}
-              onSelect={setSelected}
-            />
-            {me.alive ? (
-              <div className="row">
-                <button
-                  className="btn btn-ghost"
-                  onClick={() => submitVote(null)}
+            <p className="tag">THE TABLE TALKS</p>
+            <ul className="chat">
+              {chat.length === 0 && (
+                <li className="typing">
+                  The table is silent. Nobody dares speak.
+                </li>
+              )}
+              {chat.slice(0, shown).map((l, i) => (
+                <li
+                  key={i}
+                  className={`bubble ${l.speakerId === HUMAN_ID ? "bubble-me" : ""}`}
                 >
-                  Abstain
-                </button>
-                <button
-                  className="btn"
-                  disabled={!selected}
-                  onClick={() => submitVote(selected)}
-                >
-                  Cast vote
-                </button>
-              </div>
-            ) : (
-              <button className="btn" onClick={() => submitVote(null)}>
-                Watch the vote
-              </button>
+                  <b>{nameOf(l.speakerId)}</b>
+                  <span>{l.text}</span>
+                </li>
+              ))}
+              {!votingReady && (
+                <li className="typing">
+                  {nameOf(chat[shown].speakerId)} is speaking...{" "}
+                  <button
+                    className="link"
+                    onClick={() => setShown(chat.length)}
+                  >
+                    skip
+                  </button>
+                </li>
+              )}
+            </ul>
+
+            {votingReady && (
+              <>
+                <p className="narration">
+                  {me.alive ? "Who gets your vote?" : "You can only watch."}
+                </p>
+                <PlayerGrid
+                  game={game}
+                  selectable={me.alive ? getLegalTargets(game, HUMAN_ID) : []}
+                  selected={selected}
+                  onSelect={pickTile}
+                />
+                {me.alive ? (
+                  <>
+                    <button
+                      className="btn btn-ghost"
+                      disabled={!selected || accused}
+                      onClick={accuse}
+                    >
+                      {accused ? "You have spoken" : "Accuse them aloud"}
+                    </button>
+                    <div className="row">
+                      <button
+                        className="btn btn-ghost"
+                        onClick={() => submitVote(null)}
+                      >
+                        Abstain
+                      </button>
+                      <button
+                        className="btn"
+                        disabled={!selected}
+                        onClick={() => submitVote(selected)}
+                      >
+                        Cast vote
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <button className="btn" onClick={() => submitVote(null)}>
+                    Watch the vote
+                  </button>
+                )}
+              </>
             )}
           </>
         )}
@@ -366,7 +509,7 @@ export default function GameScreen({ config, onExit }: Props) {
                 {v && (
                   <>
                     <div className="announce">
-                      <p>{narrate(v, nameOf)}</p>
+                      <p className="fade-line">{narrate(v, nameOf)}</p>
                     </div>
                     <ul className="votes">
                       {Object.entries(v.votes).map(([voter, target]) => (

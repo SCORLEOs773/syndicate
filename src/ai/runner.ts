@@ -38,6 +38,7 @@ export function autoBotVotes(
   state: GameState,
   humanIds: ReadonlySet<string>,
   rng: () => number = Math.random,
+  suspicion: Record<string, number> = {},
 ): GameState {
   let s = state;
   const bots = shuffle(
@@ -47,7 +48,7 @@ export function autoBotVotes(
     rng,
   );
   for (const bot of bots) {
-    s = castVote(s, bot.id, chooseVote(s, bot.id, rng));
+    s = castVote(s, bot.id, chooseVote(s, bot.id, rng, suspicion));
   }
   return s;
 }

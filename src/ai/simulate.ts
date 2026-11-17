@@ -1,6 +1,7 @@
 import { createGame, resolveNight, resolveVote } from "../engine";
 import type { GameState } from "../engine";
 import { autoBotVotes, autoNightActions } from "./runner";
+import { generateDiscussion, suspicionFrom } from "./discussion";
 
 const NO_HUMANS = new Set<string>();
 
@@ -19,7 +20,10 @@ function playBotGame(playerCount: number): GameState {
     if (state.phase === "night") {
       state = resolveNight(autoNightActions(state, NO_HUMANS));
     } else {
-      state = resolveVote(autoBotVotes(state, NO_HUMANS));
+      const lines = generateDiscussion(state, NO_HUMANS);
+      state = resolveVote(
+        autoBotVotes(state, NO_HUMANS, Math.random, suspicionFrom(lines)),
+      );
     }
   }
   return state;
