@@ -19,6 +19,7 @@ import { narrate, ROLE_NAME } from "../ui/narration";
 import { sfx } from "../ui/sfx";
 import type { GameConfig } from "./SetupScreen";
 import "./GameScreen.css";
+import { music } from "../ui/music";
 
 const HUMAN_ID = "human";
 
@@ -156,6 +157,8 @@ export default function GameScreen({ config, onExit }: Props) {
     return () => window.clearTimeout(t);
   }, [stage, shown, chat.length]);
 
+  useEffect(() => () => music.stop(), []);
+
   // ---------- transitions
 
   function pickTile(id: string) {
@@ -166,9 +169,11 @@ export default function GameScreen({ config, onExit }: Props) {
   function toggleMute() {
     sfx.setMuted(!muted);
     setMuted(!muted);
+    music.refresh();
   }
 
   function startNight(g: GameState) {
+    music.start();
     setGame(autoNightActions(g, humansOf(g)));
     setSelected(null);
     setStage("night");
@@ -279,6 +284,9 @@ export default function GameScreen({ config, onExit }: Props) {
   );
 
   const isNight = stage === "reveal" || stage === "night";
+  useEffect(() => {
+    music.setMood(isNight ? "night" : "day");
+  }, [isNight]);
   const themeClass = isNight ? "game game-night" : "game game-day";
   const votingReady = shown >= chat.length;
 
