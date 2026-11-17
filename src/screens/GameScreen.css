@@ -1,18 +1,112 @@
 .game {
-  max-width: 460px;
-  margin: 0 auto;
   min-height: 100%;
-  padding: 32px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  transition: background 0.6s;
 }
 
-.game-tag {
-  font-size: 0.7rem;
-  letter-spacing: 0.4em;
+.game-night {
+  background:
+    radial-gradient(
+      ellipse at 80% 0%,
+      rgba(120, 140, 200, 0.14),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 50% 100%,
+      rgba(139, 26, 26, 0.15),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+.game-day {
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(201, 162, 39, 0.2),
+      transparent 60%
+    ),
+    #1a1410;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.hud-phase {
+  color: var(--gold-soft);
+  font-family: var(--font-title);
+  font-size: 1rem;
+}
+
+.hud-role {
   color: var(--muted);
-  margin-top: 8px;
+}
+
+.hud-mafia {
+  color: var(--blood-bright);
+}
+
+.stage {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 28px 18px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tag {
+  font-size: 0.72rem;
+  letter-spacing: 0.35em;
+  color: var(--muted);
+}
+
+.narration {
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.notice {
+  padding: 14px 16px;
+  border: 1px solid var(--gold);
+  background: rgba(201, 162, 39, 0.08);
+  color: var(--gold-soft);
+  text-align: center;
+}
+
+.announce {
+  padding: 22px 20px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--blood);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.announce.big {
+  text-align: center;
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+}
+
+.outcome {
+  color: var(--gold);
+  font-size: 1.8rem;
 }
 
 .role-card {
@@ -32,9 +126,8 @@
 }
 
 .role-card p {
-  color: var(--text);
-  font-size: 0.95rem;
   line-height: 1.5;
+  font-size: 0.95rem;
 }
 
 .role-mafia {
@@ -42,45 +135,105 @@
   box-shadow: 0 0 30px rgba(192, 57, 43, 0.25);
 }
 
-.role-mafia h2 {
-  color: var(--blood-bright);
-}
-
+.role-mafia h2,
 .role-team {
   color: var(--blood-bright) !important;
 }
 
-.seats {
+.grid {
   list-style: none;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
 
-.seat {
-  padding: 10px 12px;
+.tile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px;
+  text-align: left;
+  color: var(--text);
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
-.seat-me {
+.tile:disabled {
+  cursor: default;
+}
+
+.tile-me {
   border-color: var(--gold);
   color: var(--gold-soft);
 }
 
+.tile-dead {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.tile-role {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--blood-bright);
+  text-decoration: none;
+}
+
+.tile-pickable {
+  cursor: pointer;
+  border-color: #4a4a52;
+}
+
+.tile-pickable:hover {
+  border-color: var(--gold);
+}
+
+.tile-selected {
+  border-color: var(--blood-bright);
+  background: rgba(139, 26, 26, 0.3);
+  box-shadow: 0 0 18px rgba(192, 57, 43, 0.35);
+}
+
+.votes {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.votes b {
+  color: var(--text);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  background: transparent;
+  color: var(--gold);
+  box-shadow: none;
+}
+
 .debug {
+  margin-top: 20px;
   font-size: 0.8rem;
   color: var(--muted);
 }
 
 .debug ul {
   margin: 8px 0 0 18px;
-}
-
-.game-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 12px;
 }

@@ -3,9 +3,9 @@ import type { Player, Role, Team } from "./types";
 export const MIN_PLAYERS = 5;
 export const MAX_PLAYERS = 12;
 
-/** 5-6 players: 1 mafia, 7-9: 2 mafia, 10-12: 3 mafia */
+/** 5-9 players: 1 mafia, 10-12 players: 2 mafia */
 export function mafiaCount(playerCount: number): number {
-  return Math.max(1, Math.floor((playerCount - 1) / 3));
+  return playerCount >= 10 ? 2 : 1;
 }
 
 export function buildRoleList(playerCount: number): Role[] {
